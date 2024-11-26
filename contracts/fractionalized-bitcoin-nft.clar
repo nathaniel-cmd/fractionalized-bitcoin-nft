@@ -11,3 +11,15 @@
 (define-constant ERR-ALREADY-FRACTIONALIZED (err u3))
 (define-constant ERR-INSUFFICIENT-FRACTIONS (err u4))
 (define-constant ERR-UTXO-LOCKED (err u5))
+
+;; data maps
+(define-map bitcoin-utxo-details 
+  { utxo-id: (string-ascii 64) }
+  {
+    total-fractions: uint,
+    owner: principal,
+    bitcoin-address: (string-ascii 35),
+    original-value: uint,
+    is-locked: bool
+  }
+)
