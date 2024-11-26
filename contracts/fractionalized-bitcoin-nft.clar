@@ -133,3 +133,29 @@
 )
   (map-get? bitcoin-utxo-details { utxo-id: utxo-id })
 )
+
+;; Utility function to validate UTXO ID
+(define-private (is-valid-utxo-id (utxo-id (string-ascii 64)))
+  (and 
+    (> (len utxo-id) u0)
+    (<= (len utxo-id) u64)
+    ;; Optional: Add more specific validation if needed
+    ;; For example, check for hexadecimal characters
+    true
+  )
+)
+
+;; Utility function to validate Bitcoin address
+(define-private (is-valid-bitcoin-address (address (string-ascii 35)))
+  (and 
+    (or 
+      ;; Supports both legacy and segwit addresses
+      (and 
+        (>= (len address) u26)
+        (<= (len address) u35)
+      )
+      ;; You might want to add more specific address validation here
+      false
+    )
+  )
+)
