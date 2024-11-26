@@ -99,3 +99,30 @@
     (ok true)
   )
 )
+
+(define-public (burn-bitcoin-fraction
+  (utxo-id (string-ascii 64))
+)
+  (let 
+    (
+      (utxo-details 
+        (unwrap! 
+          (map-get? bitcoin-utxo-details { utxo-id: utxo-id }) 
+          ERR-INVALID-FRACTIONS
+        )
+    )
+    )
+    ;; Validate burn
+    (asserts! (is-eq tx-sender (get owner utxo-details)) ERR-NOT-OWNER)
+
+    ;; Burn NFT
+    (try! 
+      (nft-burn? bitcoin-fraction utxo-id tx-sender)
+    )
+
+    ;; Remove UTXO details and unlock
+    (map-delete bitcoin-utxo-details { utxo-id: utxo-id })
+
+    (ok true)
+  )
+)
