@@ -23,3 +23,47 @@
     is-locked: bool
   }
 )
+
+;; public functions
+(define-public (create-bitcoin-fraction 
+  (utxo-id (string-ascii 64))
+  (bitcoin-address (string-ascii 35))
+  (original-value uint)
+  (total-fractions uint)
+)
+  (begin
+    ;; Validate input
+    (asserts! (> total-fractions u0) ERR-INVALID-FRACTIONS)
+    (asserts! (> original-value u0) ERR-INVALID-FRACTIONS)
+
+    ;; Check if UTXO is already fractionalized
+    (asserts! 
+      (is-eq 
+        (default-to false 
+          (get is-locked 
+            (map-get? bitcoin-utxo-details { utxo-id: utxo-id }))) 
+        false
+      ) 
+      ERR-ALREADY-FRACTIONALIZED
+    )
+
+    ;; Store UTXO details
+    (map-set bitcoin-utxo-details 
+      { utxo-id: utxo-id }
+      {
+        total-fractions: total-fractions,
+        owner: tx-sender,
+        bitcoin-address: bitcoin-address,
+        original-value: original-value,
+        is-locked: true
+      }
+    )
+
+    ;; Mint NFT fractions
+    (try! 
+      (nft-mint? bitcoin-fraction utxo-id tx-sender)
+    )
+
+    (ok true)
+  )
+)
