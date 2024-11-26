@@ -75,6 +75,7 @@
   )
 )
 
+;; Transfer a fraction of the Bitcoin NFT
 (define-public (transfer-bitcoin-fraction
   (utxo-id (string-ascii 64))
   (new-owner principal)
@@ -89,6 +90,9 @@
         )
     )
     )
+    ;; Validate input
+    (asserts! (is-valid-utxo-id utxo-id) ERR-INVALID-UTXO-ID)
+    
     ;; Validate transfer
     (asserts! (is-eq tx-sender (get owner utxo-details)) ERR-NOT-OWNER)
     (asserts! (> fraction-amount u0) ERR-INVALID-FRACTIONS)
@@ -100,13 +104,18 @@
     )
 
     (try! 
-      (nft-transfer? bitcoin-fraction utxo-id tx-sender new-owner)
+      (nft-transfer? bitcoin-fraction 
+        (unwrap! (some utxo-id) ERR-INVALID-UTXO-ID) 
+        tx-sender 
+        new-owner
+      )
     )
 
     (ok true)
   )
 )
 
+(define-public (burn-bitcoin-fraction;; Unlock and burn fractionalized Bitcoin NFT
 (define-public (burn-bitcoin-fraction
   (utxo-id (string-ascii 64))
 )
@@ -119,12 +128,18 @@
         )
     )
     )
+    ;; Validate input
+    (asserts! (is-valid-utxo-id utxo-id) ERR-INVALID-UTXO-ID)
+    
     ;; Validate burn
     (asserts! (is-eq tx-sender (get owner utxo-details)) ERR-NOT-OWNER)
 
     ;; Burn NFT
     (try! 
-      (nft-burn? bitcoin-fraction utxo-id tx-sender)
+      (nft-burn? bitcoin-fraction 
+        (unwrap! (some utxo-id) ERR-INVALID-UTXO-ID) 
+        tx-sender
+      )
     )
 
     ;; Remove UTXO details and unlock
