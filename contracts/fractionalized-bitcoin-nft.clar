@@ -25,6 +25,8 @@
 )
 
 ;; public functions
+
+;; Create a fractionalized Bitcoin NFT
 (define-public (create-bitcoin-fraction 
   (utxo-id (string-ascii 64))
   (bitcoin-address (string-ascii 35))
@@ -33,6 +35,8 @@
 )
   (begin
     ;; Validate input
+    (asserts! (is-valid-utxo-id utxo-id) ERR-INVALID-UTXO-ID)
+    (asserts! (is-valid-bitcoin-address bitcoin-address) ERR-INVALID-BITCOIN-ADDRESS)
     (asserts! (> total-fractions u0) ERR-INVALID-FRACTIONS)
     (asserts! (> original-value u0) ERR-INVALID-FRACTIONS)
 
@@ -61,7 +65,10 @@
 
     ;; Mint NFT fractions
     (try! 
-      (nft-mint? bitcoin-fraction utxo-id tx-sender)
+      (nft-mint? bitcoin-fraction 
+        (unwrap! (some utxo-id) ERR-INVALID-UTXO-ID) 
+        tx-sender
+      )
     )
 
     (ok true)
