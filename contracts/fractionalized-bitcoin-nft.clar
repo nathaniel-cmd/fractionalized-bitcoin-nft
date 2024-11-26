@@ -126,3 +126,10 @@
     (ok true)
   )
 )
+
+;; read only functions
+(define-read-only (get-utxo-details 
+  (utxo-id (string-ascii 64))
+)
+  (map-get? bitcoin-utxo-details { utxo-id: utxo-id })
+)
