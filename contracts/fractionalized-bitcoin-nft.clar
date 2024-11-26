@@ -67,3 +67,35 @@
     (ok true)
   )
 )
+
+(define-public (transfer-bitcoin-fraction
+  (utxo-id (string-ascii 64))
+  (new-owner principal)
+  (fraction-amount uint)
+)
+  (let 
+    (
+      (utxo-details 
+        (unwrap! 
+          (map-get? bitcoin-utxo-details { utxo-id: utxo-id }) 
+          ERR-INVALID-FRACTIONS
+        )
+    )
+    )
+    ;; Validate transfer
+    (asserts! (is-eq tx-sender (get owner utxo-details)) ERR-NOT-OWNER)
+    (asserts! (> fraction-amount u0) ERR-INVALID-FRACTIONS)
+    
+    ;; Update ownership details
+    (map-set bitcoin-utxo-details 
+      { utxo-id: utxo-id }
+      (merge utxo-details { owner: new-owner })
+    )
+
+    (try! 
+      (nft-transfer? bitcoin-fraction utxo-id tx-sender new-owner)
+    )
+
+    (ok true)
+  )
+)
