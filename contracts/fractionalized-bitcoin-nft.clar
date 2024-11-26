@@ -11,6 +11,8 @@
 (define-constant ERR-ALREADY-FRACTIONALIZED (err u3))
 (define-constant ERR-INSUFFICIENT-FRACTIONS (err u4))
 (define-constant ERR-UTXO-LOCKED (err u5))
+(define-constant ERR-INVALID-UTXO-ID (err u6))
+(define-constant ERR-INVALID-BITCOIN-ADDRESS (err u7))
 
 ;; data maps
 (define-map bitcoin-utxo-details 
@@ -115,7 +117,7 @@
   )
 )
 
-(define-public (burn-bitcoin-fraction;; Unlock and burn fractionalized Bitcoin NFT
+;; Unlock and burn fractionalized Bitcoin NFT
 (define-public (burn-bitcoin-fraction
   (utxo-id (string-ascii 64))
 )
@@ -149,11 +151,15 @@
   )
 )
 
-;; read only functions
+;; Read-only function to get UTXO details
 (define-read-only (get-utxo-details 
   (utxo-id (string-ascii 64))
 )
-  (map-get? bitcoin-utxo-details { utxo-id: utxo-id })
+  ;; Add validation before retrieving details
+  (if (is-valid-utxo-id utxo-id)
+    (map-get? bitcoin-utxo-details { utxo-id: utxo-id })
+    none
+  )
 )
 
 ;; Utility function to validate UTXO ID
